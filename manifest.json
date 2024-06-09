@@ -1,0 +1,35 @@
+{
+
+    "name": "SEB Bypass",
+    "version": "1.0",
+    "manifest_version": 3,
+    "action": {
+      "default_popup": "popup/popup.html"
+    },
+    "background": {
+      "service_worker": "background.js",
+      "type": "module"
+    },
+    "host_permissions": [
+      "http://*/*",
+      "https://*/*"
+    ],
+    "permissions": [
+        "webNavigation",
+        "scripting",
+        "activeTab"
+    ],
+  "web_accessible_resources": [
+    {
+      "resources": ["/web-app/*"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "icons": {
+    "16": "16x16.png",
+    "32": "32x32.png",
+    "48": "48x48.png",
+    "128": "128x128.png"
+  }
+
+}

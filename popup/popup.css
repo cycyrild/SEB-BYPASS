@@ -1,0 +1,99 @@
+:root {
+  --font-size: 14px;
+  --gap-li: 10px;
+  --font-size-smaller: calc(var(--font-size) - 1px);
+  --font-size-xsmall: calc(var(--font-size) - 3px);
+  --font-size-larger: 15px;
+  --font-family: Inter, sans-serif;
+}
+
+html {
+  min-height: 7em;
+  min-width: 27em;
+  background: radial-gradient(circle, rgba(164,213,235,1) 0%, rgba(201,201,201,1) 100%);
+  font-family: var(--font-family);
+  margin: 0;
+  font-size: var(--font-size-larger);
+}
+
+
+ul {
+  font-size: var(--font-size-smaller);
+  list-style-type: none;
+  margin-block: 0;
+  margin-inline: 0;
+  padding-inline: 0;
+  display: flex;
+  flex-direction: column;
+  gap:var(--gap-li);
+  padding: 25px 0 25px 0;
+}
+
+li {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-li);
+}
+
+li:hover {
+  background-color: rgba(255, 255, 255, 0.377);
+}
+
+li > span {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+li > .buttons {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--gap-li);
+}
+
+.main-icon {
+  height: 125px;
+  display: block;
+  margin: 20px auto 0 auto;
+}
+
+h1 {
+  filter: drop-shadow(0px 0px 10px white);
+  font-weight: 900;
+  text-align:center;
+  display: block;
+}
+
+.empty-message {
+  display: none;
+}
+
+.empty .empty-message {
+  display: block;
+}
+
+.footer {
+  display: flex;
+  flex-direction: row;
+  height: 20px;
+  align-items: center;
+  justify-content: space-around;
+  font-size: var(--font-size-xsmall);
+  margin: 0 auto 0 auto;
+  width: 200px;
+}
+
+.discord-icon {
+  background-color: black;
+  mask: url('discord.svg') no-repeat center;
+  mask-size: contain;
+  aspect-ratio: 1/1;
+  height: 100%;
+}
+
+.error {
+  color: red;
+  font-weight: 600;
+
+}
