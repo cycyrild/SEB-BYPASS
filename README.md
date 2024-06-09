@@ -12,10 +12,10 @@ Follow these steps to clone the repository and install the extension in your Chr
 First, open your terminal and run the following command to clone the GitHub repository:
 
 ```sh
-git clone https://github.com/cycyrild/seb-bypasser.git
+git clone https://github.com/cycyrild/seb-bypass.git
 ```
 
-This command will create a directory named `seb-bypasser` in your current working directory.
+This command will create a directory named `seb-bypass` in your current working directory.
 
 ### Step 2: Open Chrome Extensions Page
 
@@ -26,7 +26,7 @@ This command will create a directory named `seb-bypasser` in your current workin
 ### Step 3: Load the Unpacked Extension
 
 1. Click the "Load unpacked" button.
-2. In the file dialog, navigate to the directory where you cloned the repository (`seb-bypasser`), and select it.
+2. In the file dialog, navigate to the directory where you cloned the repository (`seb-bypass`), and select it.
 3. Click "Select Folder" (or "Open" on macOS).
 
 The extension should now be loaded into Chrome and ready to use.
