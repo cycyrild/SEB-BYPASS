@@ -71,8 +71,12 @@ async function injectJS(tabId)
 }
 
 function showSebLinks(links, tabId) {
-    UlSebLinks.innerHTML = '';
-    
+    const childLiElements = UlSebLinks.querySelectorAll('li');
+
+    if (childLiElements.length > 0) {
+        childLiElements.forEach(child => UlSebLinks.removeChild(child));
+    }    
+
     const createLinkTemplate = (configData) => `
         <li>
             <div class="row">
@@ -111,6 +115,7 @@ function showSebLinks(links, tabId) {
         };
 
         li.querySelector('.btn-open-tab').onclick = async () => {
+            window.close();
             const configKey = await SebTools.getConfigKey(configData.startUrl, configData.configHash);
             const html = await SebTools.fetchWithHeader(configData.startUrl, configKey);
             chrome.scripting.executeScript({
