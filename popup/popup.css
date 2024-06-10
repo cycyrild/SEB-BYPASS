@@ -5,6 +5,8 @@
   --font-size-xsmall: calc(var(--font-size) - 3px);
   --font-size-larger: 15px;
   --font-family: Inter, sans-serif;
+  --hover-color: rgba(255, 255, 255, 0.377);
+  --main-img-url: url('../large-icon.png');
 }
 
 html {
@@ -37,16 +39,16 @@ li {
 }
 
 li:hover {
-  background-color: rgba(255, 255, 255, 0.377);
+  background-color: var(--hover-color);
 }
 
-li > span {
+li .text-truncate{
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
 }
 
-li > .buttons {
+li .buttons {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: var(--gap-li);
@@ -56,7 +58,14 @@ li > .buttons {
   height: 125px;
   display: block;
   margin: 20px auto 0 auto;
+  background-image: var(--main-img-url);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  position: relative;
+  aspect-ratio: 1/1;
 }
+
 
 h1 {
   filter: drop-shadow(0px 0px 10px white);
@@ -95,5 +104,39 @@ h1 {
 .error {
   color: red;
   font-weight: 600;
+}
 
+button {
+  background: transparent;
+  border-style: solid;
+  padding: 5px;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  align-items: center;
+}
+
+button:hover {
+  background-color: var(--hover-color);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.refresh {
+  position: absolute;
+  font-size: 32px;
+  right: -16px;
+  top: 0;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 50%);
+  padding: 5px;
+}
+
+.refresh:hover {
+  background: white;
 }

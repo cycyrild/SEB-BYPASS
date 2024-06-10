@@ -44,7 +44,7 @@
     </div>
 
     <script type="module">
-        import SebTools from './web-app/seb-tools.js'; // Make sure this path is correct
+        import SebTools from './web-app/seb-tools.js';
 
         document.getElementById('convertButton').addEventListener('click', async () => {
             const xmlText = document.getElementById('xmlInput').value;
@@ -56,7 +56,6 @@
                 const unorderedData = SebTools.sebxml2dict(xml);
                 const sortedData = SebTools.sortElements(unorderedData);
 
-                // Display JSON before hashing
                 document.getElementById('jsonBeforeHashingOutput').textContent = SebTools.serialize(sortedData);
 
                 const result = await SebTools.sebHashFromConfig(xmlText);

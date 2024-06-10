@@ -71,18 +71,37 @@ async function injectJS(tabId)
 }
 
 function showSebLinks(links, tabId) {
+    UlSebLinks.innerHTML = '';
+    
+    const createLinkTemplate = (configData) => `
+        <li>
+            <div class="row">
+                <i class="fa-regular fa-link"></i>
+                <span class="text-truncate">${configData.startUrl}</span>
+            </div>
+            <div class="row">
+                <i class="fa-regular fa-binary-circle-check"></i>
+                <span class="text-truncate">${configData.configHash}</span>
+            </div>
+            <div class="buttons">
+                <button class="btn-open-emulator">
+                    <i class="fa-regular fa-mask"></i>
+                    Open in SEB emulator
+                </button>
+                <button class="btn-open-tab">
+                    <i class="fa-regular fa-arrow-up-right-from-square"></i>
+                    Open in current tab
+                </button>
+            </div>
+        </li>
+    `;
+
     links.forEach(configData => {
-        const li = document.createElement('li');
+        const template = document.createElement('template');
+        template.innerHTML = createLinkTemplate(configData).trim();
+        const li = template.content.firstChild;
 
-        const span = document.createElement('span');
-        span.textContent = configData.startUrl;
-
-        const divButtons = document.createElement('div');
-        divButtons.classList.add('buttons');
-        
-        const btn1 = document.createElement('button');
-        btn1.textContent = 'Open in SEB emulator';
-        btn1.onclick = () => {
+        li.querySelector('.btn-open-emulator').onclick = () => {
             window.close();
             chrome.scripting.executeScript({
                 target: { tabId: tabId },
@@ -91,35 +110,28 @@ function showSebLinks(links, tabId) {
             });
         };
 
-        const btn2 = document.createElement('button');
-        btn2.textContent = 'Open in current tab';
-        btn2.onclick = (async () => {
+        li.querySelector('.btn-open-tab').onclick = async () => {
             const configKey = await SebTools.getConfigKey(configData.startUrl, configData.configHash);
             const html = await SebTools.fetchWithHeader(configData.startUrl, configKey);
             chrome.scripting.executeScript({
                 target: { tabId: tabId },
-                func: ((dom) => {
+                func: (dom) => {
                     document.open();
                     document.write(dom);
                     document.close();
-                }),
+                },
                 args: [html]
             });
-        });
+        };
 
-        divButtons.appendChild(btn1);
-        divButtons.appendChild(btn2);
-        
-        li.appendChild(span);
-        li.appendChild(divButtons);
-        
         UlSebLinks.appendChild(li);
     });
 
-    if(links.length === 0) {
-        UlSebLinks.classList.add("empty");
+    if (links.length === 0) {
+        UlSebLinks.classList.add('empty');
     }
 }
+
 
 async function getSebLinks()
 {
@@ -147,6 +159,9 @@ async function getSebLinks()
 
 document.addEventListener('DOMContentLoaded', async function() {
     UlSebLinks = document.querySelector('ul.seb-links');
+    document.querySelector('#reload-btn').addEventListener('click', async function() {
+        await getSebLinks();
+    });
     await getSebLinks();
 });
 

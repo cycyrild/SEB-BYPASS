@@ -63,7 +63,7 @@ class SebTools
     static serialize(dictionary) {
         function _serialize(value) {
             if (value instanceof Object && !(value instanceof Array)) {
-                return serialize(value);  // Correct reference to the outer serialize function
+                return serialize(value);
             } else if (value instanceof Array) {
                 return _serializeList(value);
             } else if (value instanceof Uint8Array) {
@@ -96,7 +96,7 @@ class SebTools
             return result;
         }
     
-        function serialize(obj) {  // Define the serialize function within the same scope
+        function serialize(obj) {
             let orderedByKey = Object.keys(obj).sort((a, b) => a.localeCompare(b, 'en', { sensitivity: 'base' }));
     
             let result = '{';
@@ -122,7 +122,7 @@ class SebTools
             return result;
         }
     
-        return serialize(dictionary);  // Call the serialize function
+        return serialize(dictionary);
     }
     
 
