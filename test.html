@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safe Exam Browser Bypass</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            margin-bottom: 20px;
+        }
+        button {
+            display: block;
+            margin-bottom: 20px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        .output-section {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Safe Exam Browser Bypass</h1>
+    <textarea id="xmlInput" placeholder="Paste your XML here"></textarea>
+    <button id="convertButton">Convert to JSON</button>
+    <div class="output-section">
+        <h2>JSON Output Before Hashing</h2>
+        <pre id="jsonBeforeHashingOutput"></pre>
+    </div>
+    <div class="output-section">
+        <h2>Result</h2>
+        <pre id="config-hash"></pre>
+        <pre id="config-key"></pre>
+
+    </div>
+
+    <script type="module">
+        import SebTools from './web-app/seb-tools.js'; // Make sure this path is correct
+
+        document.getElementById('convertButton').addEventListener('click', async () => {
+            const xmlText = document.getElementById('xmlInput').value;
+
+            try {
+                const parser = new DOMParser();
+                const xml = parser.parseFromString(xmlText, "text/xml");
+
+                const unorderedData = SebTools.sebxml2dict(xml);
+                const sortedData = SebTools.sortElements(unorderedData);
+
+                // Display JSON before hashing
+                document.getElementById('jsonBeforeHashingOutput').textContent = SebTools.serialize(sortedData);
+
+                const result = await SebTools.sebHashFromConfig(xmlText);
+                const [url, configHash] = result;
+
+                const configKey = await SebTools.getConfigKey(url, configHash);
+                document.getElementById('config-hash').textContent = `Config Hash: ${configHash}`;
+                document.getElementById('config-key').textContent = `URL: ${url}\nConfig Key: ${configKey}`;
+
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('jsonOutput').textContent = `Error: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -2,45 +2,129 @@ class SebTools
 {
     static sebxml2dict(xml) {
         const data = {};
-        let valueOnNextElem = false;
         let keyText = "";
-
-        xml.querySelectorAll('*').forEach(elem => {
-            if (elem.tagName === "key") {
-                keyText = elem.textContent;
-                valueOnNextElem = true;
-            } else if (valueOnNextElem) {
-                valueOnNextElem = false;
-                switch (elem.tagName) {
-                    case "true":
-                        data[keyText] = true;
-                        break;
-                    case "false":
-                        data[keyText] = false;
-                        break;
-                    case "array":
-                        data[keyText] = [];
-                        break;
-                    case "string":
-                        data[keyText] = elem.textContent;
-                        break;
-                    case "integer":
-                        data[keyText] = parseInt(elem.textContent, 10);
-                        break;
+        let valueOnNextElem = false;
+    
+        function parseElement(elem) {
+            switch (elem.tagName) {
+                case "key":
+                    keyText = elem.textContent;
+                    valueOnNextElem = true;
+                    break;
+                case "true":
+                    return true;
+                case "false":
+                    return false;
+                case "array":
+                    return Array.from(elem.children).map(parseElement);
+                case "string":
+                    return elem.textContent;
+                case "integer":
+                    return parseInt(elem.textContent, 10);
+                case "dict":
+                    return parseDict(elem);
+                case "data":
+                    return elem.textContent;
+                default:
+                    return null;
+            }
+        }
+    
+        function parseDict(dictElem) {
+            const dict = {};
+            let key = "";
+            for (let i = 0; i < dictElem.children.length; i++) {
+                const child = dictElem.children[i];
+                if (child.tagName === "key") {
+                    key = child.textContent;
+                } else {
+                    dict[key] = parseElement(child);
                 }
             }
-        });
-
+            return dict;
+        }
+    
+        if (xml.documentElement.tagName === "plist") {
+            const rootDict = xml.documentElement.querySelector("dict");
+            if (rootDict) {
+                Object.assign(data, parseDict(rootDict));
+            }
+        }
+    
         return data;
     }
+    
+    
     static sortElements(data) {
         return Object.keys(data).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
             .reduce((acc, key) => ({ ...acc, [key]: data[key] }), {});
     }
 
-    static jsonDumpsWithoutWhitespaces(data) {
-        return JSON.stringify(data).replace(/\s/g, "");
+    static serialize(dictionary) {
+        function _serialize(value) {
+            if (value instanceof Object && !(value instanceof Array)) {
+                return serialize(value);  // Correct reference to the outer serialize function
+            } else if (value instanceof Array) {
+                return _serializeList(value);
+            } else if (value instanceof Uint8Array) {
+                return `"${btoa(String.fromCharCode.apply(null, value))}"`;
+            } else if (value instanceof Date) {
+                return `"${value.toISOString()}"`;
+            } else if (typeof value === 'boolean') {
+                return value.toString();
+            } else if (typeof value === 'number') {
+                return value.toString();
+            } else if (typeof value === 'string') {
+                return `"${value}"`;
+            } else if (value === null) {
+                return '""';
+            }
+        }
+    
+        function _serializeList(list) {
+            let result = '[';
+    
+            list.forEach((item, index) => {
+                result += _serialize(item);
+    
+                if (index !== list.length - 1) {
+                    result += ',';
+                }
+            });
+    
+            result += ']';
+            return result;
+        }
+    
+        function serialize(obj) {  // Define the serialize function within the same scope
+            let orderedByKey = Object.keys(obj).sort((a, b) => a.localeCompare(b, 'en', { sensitivity: 'base' }));
+    
+            let result = '{';
+    
+            orderedByKey.forEach((key, index) => {
+                let value = obj[key];
+                let process = true;
+    
+                process &= key.toLowerCase() !== 'originatorversion';
+                process &= !(value instanceof Object && !(value instanceof Array)) || Object.keys(value).length > 0;
+    
+                if (process) {
+                    result += `"${key}":`;
+                    result += _serialize(value);
+    
+                    if (index !== orderedByKey.length - 1) {
+                        result += ',';
+                    }
+                }
+            });
+    
+            result += '}';
+            return result;
+        }
+    
+        return serialize(dictionary);  // Call the serialize function
     }
+    
 
     static async sha256(str) {
         const buf = await crypto.subtle.digest("SHA-256", new TextEncoder("utf-8").encode(str));
@@ -54,7 +138,7 @@ class SebTools
         const unorderedData = this.sebxml2dict(xml);
         const data = this.sortElements(unorderedData);
 
-        const jsonStr = this.jsonDumpsWithoutWhitespaces(data);
+        const jsonStr =  SebTools.serialize(data);
         const configHash = await this.sha256(jsonStr);
 
         const url = data["startURL"];
