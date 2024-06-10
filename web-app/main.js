@@ -1,20 +1,18 @@
 import Window from './window.js';
 
 var usableArea = null;
-var dom = null;
 var metaTagSettings = null;
 var initialBase = null;
 var startUrl = null;
+var configKey = null;
 
 document.addEventListener('DOMContentLoaded', function() {
 	usableArea = document.querySelector('.usable-area');
 	metaTagSettings = document.querySelector('meta');
 
-	dom = metaTagSettings.getAttribute('dom');
-	metaTagSettings.setAttribute('dom', '');
-
 	startUrl = metaTagSettings.getAttribute('startUrl');
-
+	configKey = metaTagSettings.getAttribute('configKey');
+	
 	initialBase = document.querySelector('base').href;
 
 	const windowElt = new Window('.resizable-window', '.usable-area', handleDragEvent);

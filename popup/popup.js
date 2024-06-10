@@ -25,8 +25,8 @@ async function injectFunction(mainUrl, baseUrl, moduleUrl, startUrl, configHash 
             const head = doc.head;
             
             baseElt.setAttribute('href', baseUrl);
-            meta.setAttribute('dom', outHTML);
             meta.setAttribute('startUrl', startUrl);
+            meta.setAttribute('configKey', configKey);
 
             if (head.firstChild) {
                 head.insertBefore(baseElt, head.firstChild);

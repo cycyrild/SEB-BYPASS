@@ -2,15 +2,11 @@ class SebTools
 {
     static sebxml2dict(xml) {
         const data = {};
-        let keyText = "";
-        let valueOnNextElem = false;
     
         function parseElement(elem) {
             switch (elem.tagName) {
                 case "key":
-                    keyText = elem.textContent;
-                    valueOnNextElem = true;
-                    break;
+                    return elem.textContent
                 case "true":
                     return true;
                 case "false":
@@ -62,17 +58,17 @@ class SebTools
 
     static serialize(dictionary) {
         function _serialize(value) {
-            if (value instanceof Object && !(value instanceof Array)) {
-                return serialize(value);
-            } else if (value instanceof Array) {
-                return _serializeList(value);
-            } else if (value instanceof Uint8Array) {
-                return `"${btoa(String.fromCharCode.apply(null, value))}"`;
-            } else if (value instanceof Date) {
-                return `"${value.toISOString()}"`;
-            } else if (typeof value === 'boolean') {
-                return value.toString();
-            } else if (typeof value === 'number') {
+            if (value && typeof value === 'object') {
+                if (Array.isArray(value)) {
+                    return _serializeList(value);
+                } else if (value instanceof Uint8Array) {
+                    return `"${btoa(String.fromCharCode.apply(null, value))}"`;
+                } else if (value instanceof Date) {
+                    return `"${value.toISOString()}"`;
+                } else {
+                    return serialize(value);
+                }
+            } else if (typeof value === 'boolean' || typeof value === 'number') {
                 return value.toString();
             } else if (typeof value === 'string') {
                 return `"${value}"`;
@@ -82,48 +78,30 @@ class SebTools
         }
     
         function _serializeList(list) {
-            let result = '[';
-    
-            list.forEach((item, index) => {
-                result += _serialize(item);
-    
-                if (index !== list.length - 1) {
-                    result += ',';
-                }
-            });
-    
-            result += ']';
-            return result;
+            return '[' + list.map(_serialize).join(',') + ']';
         }
     
         function serialize(obj) {
             let orderedByKey = Object.keys(obj).sort((a, b) => a.localeCompare(b, 'en', { sensitivity: 'base' }));
     
             let result = '{';
-    
             orderedByKey.forEach((key, index) => {
                 let value = obj[key];
-                let process = true;
-    
-                process &= key.toLowerCase() !== 'originatorversion';
-                process &= !(value instanceof Object && !(value instanceof Array)) || Object.keys(value).length > 0;
-    
-                if (process) {
-                    result += `"${key}":`;
-                    result += _serialize(value);
-    
+                if (key.toLowerCase() !== 'originatorversion' && 
+                    (!(value && typeof value === 'object' && !Array.isArray(value)) || Object.keys(value).length > 0)) {
+                    result += `"${key}":${_serialize(value)}`;
                     if (index !== orderedByKey.length - 1) {
                         result += ',';
                     }
                 }
             });
-    
             result += '}';
             return result;
         }
     
         return serialize(dictionary);
     }
+    
     
 
     static async sha256(str) {
@@ -162,10 +140,7 @@ class SebTools
 	
 	static async fetchAndGetConfigHash(url)
 	{
-		const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+        const response = await fetch(url);
 
 		const content = await response.text();
 		const res = await this.sebHashFromConfig(content);
@@ -179,12 +154,10 @@ class SebTools
 	
 	static async fetchWithHeader(url, configKey)
 	{
-		
 		const response = await fetch(url, {
 			method: 'GET',
 			headers: {
 				'X-SafeExamBrowser-ConfigKeyHash': configKey,
-				'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0 SEB/3.5.0 (x64)'
 			}
         });
 		
